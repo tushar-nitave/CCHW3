@@ -16,7 +16,7 @@ struct thread_data {
 };
 
 
-void *PrintHello(void *threadarg) {
+void *WriteHelper(void *threadarg) {
     struct thread_data *my_data;
     my_data = (struct thread_data *) threadarg;    
     cout << "id : " << my_data->id;
@@ -73,7 +73,7 @@ void write(int files, int record)
       td[i].id = i;
       td[i].rec = record;
       td[i].fileSize = fileSize;
-      rc = pthread_create(&threads[i], NULL, PrintHello, (void *)&td[i]);      
+      rc = pthread_create(&threads[i], NULL, WriteHelper, (void *)&td[i]);      
       if (rc) {
          cout << "Error:unable to create thread," << rc << endl;
          exit(-1);
