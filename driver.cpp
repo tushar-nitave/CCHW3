@@ -38,6 +38,7 @@ void *WriteHelper(void *threadarg) {
     int recordSize = my_data->rec;
     string s = "";
     ofstream outfile;
+    outfile.rdbuf() -> pubsetbuf(0,0);
     outfile.open(to_string(threadid));
     for(int i = 0; i < recordSize-1 ; i++){
         s += c;
@@ -57,7 +58,7 @@ void *WriteHelper(void *threadarg) {
     pthread_exit(NULL);
 }
 
-void *ReadHelper(void *threadarg) {
+void *ReadHelper_Old(void *threadarg) {
     struct thread_data *my_data;
     my_data = (struct thread_data *) threadarg;
     cout << "id : " << my_data->id;
@@ -92,6 +93,42 @@ void *ReadHelper(void *threadarg) {
 
 }
 
+void *ReadHelper(void *threadarg) {
+    struct thread_data *my_data;
+    my_data = (struct thread_data *) threadarg;
+    cout << "id : " << my_data->id;
+    cout << "Record : " << my_data->rec ;
+    int threadid = my_data->id;
+    int size = my_data->fileSize;
+    int BUF_SIZE = my_data->rec;
+
+    char buffer[BUF_SIZE];
+
+    stringstream temp_str;
+    temp_str<<(threadid);
+    string str = temp_str.str();
+    const char* cstr2 = str.c_str();
+    fstream newfile;
+    newfile.rdbuf()->pubsetbuf(0,0);
+    newfile.open (cstr2, ios::in);
+    auto start = high_resolution_clock::now();
+    if(newfile.is_open()){
+        string line;
+        while(getline(newfile,line)){
+        //donothing
+        //cout<< line;
+        }
+        newfile.close();
+    }
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<microseconds>(stop - start);
+    cout << "--Time taken by function: "
+         << duration.count() << " microseconds" << endl;
+    pthread_exit(NULL);
+
+}
+
+
 int main(int argc, char *argv[])
 {
     char *accessPattern = argv[1];
@@ -112,7 +149,7 @@ int main(int argc, char *argv[])
 void write(int files, int record) 
 {   
    //put this value below prior too submission : 10000000000	
-   long long tenGb = 100000;   
+   long long tenGb = 1000000000;   
    long long fileSize = tenGb/files;   
     
    pthread_t threads[files];
